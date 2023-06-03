@@ -1,28 +1,22 @@
-import { PropsWithChildren, ReactNode, ComponentType } from "react";
+import { ComponentType, PropsWithChildren, FC , ReactNode} from "react";
 import { createUseStyles } from "react-jss";
-import { anyObjectWithStringsI } from "../common/types";
 
-import { stylesI } from "../common/types";
+import { stylesI, anyObjectWithStringsI } from "../common/types";
 
-const withReactJssStyles = (
-  WrapperComponent: ComponentType<any>,
-  styles: stylesI
-) => ({
-  children,
-  ...restProps
-}: {
-  children?: PropsWithChildren<ReactNode>;
-  restProps: anyObjectWithStringsI;
-}) => {
-  const useStyles = createUseStyles(styles);
+const withReactJssStyles =
+  <T extends { classes: anyObjectWithStringsI }>(
+    WrappedComponent: ComponentType<T>,
+    styles: stylesI
+  ): FC<Omit<T, "classes">> =>
+  (props: Omit<T, "classes"> & PropsWithChildren<any>) => {
+    const useStyles = createUseStyles(styles);
+    const classes = useStyles();
 
-  const classes = useStyles();
-
-  return (
-    <WrapperComponent classes={classes} {...restProps}>
-      {children}
-    </WrapperComponent>
-  );
-};
+    return (
+      <WrappedComponent classes={classes} {...props}>
+        {props.children}
+      </WrappedComponent>
+    );
+  };
 
 export default withReactJssStyles;
